@@ -1,0 +1,1 @@
+binaries=[(r"C:\User\serverbase\dist\obf\_pytransform*", ".")]

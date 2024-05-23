@@ -1,12 +1,19 @@
-
+# app.py
 from datetime import datetime
 
 from flask import Flask, jsonify, request
 
 from base import calculate_production_time, change_priority
+from license import main as check_license
 from models import SessionLocal, User, engine
 
 app = Flask(__name__)
+
+
+@app.before_request
+def check_license_before_request():
+    if not check_license():
+        return jsonify({"error": "Please purchase a license to use this software."}), 403
 
 
 @app.route('/api/users', methods=['POST'])
@@ -42,7 +49,7 @@ def calculate():
     data = request.get_json()
     equipment = data['equipment']
     work_type = data['work_type']
-    start_time = datetime.datetime.fromisoformat(data['start_time'])
+    start_time = datetime.fromisoformat(data['start_time'])
     required_operations = data['required_operations']
 
     end_time = calculate_production_time(
@@ -61,4 +68,7 @@ def change_priority_endpoint():
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    if check_license():
+        app.run(debug=True)
+    else:
+        print("Please purchase a license to use this software.")
